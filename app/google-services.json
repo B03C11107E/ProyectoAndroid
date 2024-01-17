@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "726804915513",
+    "project_id": "androidmh-e64df",
+    "storage_bucket": "androidmh-e64df.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:726804915513:android:4334d3e83c80b008c5b4e8",
+        "android_client_info": {
+          "package_name": "com.dam.androidmh"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAlhJ_W3HCddP7POIl5TRtKE39f2RfziZc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

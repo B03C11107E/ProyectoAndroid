@@ -6,7 +6,7 @@ plugins {
 
 android {
     namespace = "com.dam.androidmh"
-    compileSdk = 33
+    compileSdk = 34
 
     defaultConfig {
         applicationId = "com.dam.androidmh"
@@ -69,4 +69,8 @@ dependencies {
     debugImplementation("androidx.compose.ui:ui-test-manifest")
     implementation(platform("com.google.firebase:firebase-bom:32.7.0"))
     implementation("com.google.firebase:firebase-analytics")
+    implementation ("androidx.navigation:navigation-fragment-ktx:2.7.5")
+    implementation ("androidx.navigation:navigation-ui-ktx:2.7.5")
+    implementation ("androidx.navigation:navigation-compose:2.5.3")
+    implementation("androidx.compose.material:material-icons-extended:1.5.4")
 }

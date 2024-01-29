@@ -36,9 +36,13 @@ class MonstruosViewModelFirebase : ViewModel() {
                     }
                     else if(cambio.type == DocumentChange.Type.REMOVED) {
                         // borramos elemento de la lista UI
+                        var nuevoMonstruo = cambio.document.toObject<Monstruo>()
+                        _listaMonstruos.value.remove(nuevoMonstruo)
                     }
                     else if(cambio.type == DocumentChange.Type.MODIFIED) {
                         // modificamos elemento de la lista UI
+                        var nuevoMonstruo = cambio.document.toObject<Monstruo>()
+                        _listaMonstruos.value[cambio.newIndex] = nuevoMonstruo
                     }
                 }
             }
@@ -63,5 +67,13 @@ class MonstruosViewModelFirebase : ViewModel() {
 
     fun aniadirMonstruo(nuevoMonstruo: Monstruo) {
         conexion.collection("Monstruos").add(nuevoMonstruo)
+    }
+
+    fun borrarMonstruo(usuarioABorrar: Monstruo){
+        conexion.collection("Monstruos").document(usuarioABorrar.nombre).delete()
+    }
+    fun editarMonstruo(monstruoAEditar: Monstruo, nuevoMonstruo: Monstruo){
+        conexion.collection("Monstruos").document(monstruoAEditar.nombre).set(Monstruo(nuevoMonstruo.id,nuevoMonstruo.nombre,nuevoMonstruo.rangoBajo,
+            nuevoMonstruo.rangoAlto, nuevoMonstruo.rangoMaestro))
     }
 }

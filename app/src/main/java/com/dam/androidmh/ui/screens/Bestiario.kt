@@ -11,12 +11,17 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.AlertDialogDefaults.shape
+import androidx.compose.material3.Checkbox
+import androidx.compose.material3.CheckboxColors
+import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
@@ -33,7 +38,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.dam.androidmh.R
 import com.dam.androidmh.ui.model.Monstruo
 import androidx.compose.material3.SearchBar
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -147,12 +151,25 @@ fun ListItemRow(item: Monstruo) {
                 Column {
                     Text(text = item.nombre, fontSize = 18.sp, color = Color.Black,  modifier = Modifier
                         .padding(0.dp,10.dp))
-                    Text(text = "Cazado")
-                    Text(text = "Rango Bajo: "+item.rangoBajo.toString())
-                    Text(text = "Rango Alto: "+item.rangoAlto.toString())
-                    Text(text = "Rango Maestro: "+item.rangoMaestro.toString())
+                    Text(text = "Cazado", modifier = Modifier
+                            .padding(bottom = 10.dp))
+                    CheckboxCustom(item.rangoBajo, "Rango Bajo")
+                    CheckboxCustom(item.rangoAlto, "Rango Alto")
+                    CheckboxCustom(item.rangoMaestro, "Rango Maestro")
                 }
             }
         }
+    }
+}
+
+@Composable
+fun CheckboxCustom(check: Boolean, texto: String) {
+    val checked = remember { mutableStateOf(check) }
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        Text(texto)
+        Checkbox(
+            checked = checked.value,
+            onCheckedChange = { isChecked -> checked.value = isChecked }
+        )
     }
 }

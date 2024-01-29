@@ -16,6 +16,7 @@ import com.dam.androidmh.ui.theme.AndroidMHTheme
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         setContent {
             AndroidMHTheme {
                 // A surface container using the 'background' color from the theme

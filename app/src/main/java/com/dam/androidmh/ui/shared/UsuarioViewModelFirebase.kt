@@ -19,35 +19,29 @@ class UsuarioViewModelFirebase : ViewModel() {
     private lateinit var listenerReg: ListenerRegistration
 
     // Lista de toda la grifa, que la actualizará Firebase.
-    private var _listaGrifa = MutableStateFlow(mutableStateListOf<Usuario>())
-    var listaGrifa = _listaGrifa.asStateFlow()
-
-    private var _prueba = MutableStateFlow("ohno")
-    var prueba = _prueba.asStateFlow()
-
+    private var _listaUsuarios = MutableStateFlow(mutableStateListOf<Usuario>())
+    var listaUsuarios = _listaUsuarios.asStateFlow()
 
     fun crearListener() {
         // ponemos la oreja
         listenerReg = conexion.collection("Usuario").addSnapshotListener { datos, error ->
             if (error == null) {
-                _prueba.value = "naisu"
                 // ¿Que cambios nuevos ha habido en la BBDD?
                 datos?.documentChanges?.forEach { cambio ->
                     if (cambio.type == DocumentChange.Type.ADDED) {
                         // añadimos elemento a la lista UI
-                        var nuevagrifa = cambio.document.toObject<Usuario>()
-                        nuevagrifa.nombre = cambio.document.id
-                        _listaGrifa.value.add(nuevagrifa)
+                        var nuevoUsuario = cambio.document.toObject<Usuario>()
+                        nuevoUsuario.nombre = cambio.document.id
+                        _listaUsuarios.value.add(nuevoUsuario)
                     } else if (cambio.type == DocumentChange.Type.REMOVED) {
                         // borramos elemento de la lista UI
-                        var nuevagrifa = cambio.document.toObject<Usuario>()
-                        _listaGrifa.value.remove(nuevagrifa)
+                        var nuevoUsuario = cambio.document.toObject<Usuario>()
+                        _listaUsuarios.value.remove(nuevoUsuario)
                     } else if (cambio.type == DocumentChange.Type.MODIFIED) {
                         // modificamos elemento de la lista UI
-                        var nuevagrifa = cambio.document.toObject<Usuario>()
-                        _listaGrifa.value[cambio.newIndex] = nuevagrifa
+                        var nuevoUsuario = cambio.document.toObject<Usuario>()
+                        _listaUsuarios.value[cambio.newIndex] = nuevoUsuario
                     }
-
                 }
             }
         }

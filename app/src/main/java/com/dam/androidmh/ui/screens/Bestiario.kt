@@ -37,13 +37,8 @@ import com.dam.androidmh.R
 import com.dam.androidmh.ui.model.Monstruo
 import androidx.compose.material3.SearchBar
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.remember
-
-var listaMonstruosPrueba: MutableList<Monstruo> by mutableStateOf(mutableListOf(
-    Monstruo(1,"Pukei",false,false,false, R.drawable.anjanath),
-    Monstruo(2,"Anjanah",false,false,false, R.drawable.anjanath),
-    Monstruo(3,"Velkhana",false,false,false, R.drawable.anjanath)
-    ))
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -64,32 +59,16 @@ fun Bestiario() {
 
     val monstruosViewModel: MonstruosViewModelFirebase = viewModel()
 
-    var document = monstruosViewModel.obtenerLista()
+    monstruosViewModel.obtenerLista()
+    //monstruosViewModel.aniadirMonstruo(Monstruo(2,"Anjanath",false,false,false,R.drawable.anjanath))
 
-    var nombre = "Prueba"
+    var listaMonstruosPrueba = monstruosViewModel.listaMonstruos.collectAsState().value
 
-    /*
-
-    if (document != null) {
-        document.forEach { documento ->
-
-            documento.get("uid").toString().toInt()
-            nombre = documento.get("Nombre").toString()
-            documento.get("rangoBajo").toString().toBoolean()
-            documento.get("rangoAlto").toString().toBoolean()
-            documento.get("rangoMaestro").toString().toBoolean()
-
-        }
-    } else {
-        nombre = "El documento esta vacio"
-    }
-    */
     Column(modifier = Modifier
         .fillMaxSize()
         .background(Color.White),
         horizontalAlignment = Alignment.CenterHorizontally)
     {
-        //Text(text = document)
         Row {
             Text(text = "Bestiario", fontSize = 24.sp, color = Color.Black, fontWeight = FontWeight.Bold)
         }
@@ -134,15 +113,17 @@ fun Bestiario() {
             )}
         }
 
-        ListWithLazyColumn(items = listaMonstruosPrueba)
+        ListWithLazyColumn(listaMonstruosPrueba, query)
     }
 }
 
 @Composable
-fun ListWithLazyColumn(items: MutableList<Monstruo>) { // (1)
+fun ListWithLazyColumn(items: MutableList<Monstruo>, query: String) { // (1)
     LazyColumn {
         items(items) { item ->
-            ListItemRow(item)
+            if (query == item.nombre || query == "") {
+                ListItemRow(item)
+            }
         }
     }
 }
@@ -160,7 +141,7 @@ fun ListItemRow(item: Monstruo) {
                 Image(painter = painterResource(id = item.imagen),
                     contentDescription = "",
                     modifier = Modifier
-                        .padding(top = 30.dp,end = 30.dp)
+                        .padding(top = 30.dp, end = 30.dp)
                         .size(120.dp)
                 )
                 Column {

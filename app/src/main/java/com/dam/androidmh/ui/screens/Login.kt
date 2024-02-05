@@ -1,5 +1,7 @@
 package com.dam.androidmh.ui.screens
 
+import android.content.Context
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -32,6 +34,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight.Companion.Bold
 import androidx.compose.ui.text.input.KeyboardType
@@ -39,9 +42,12 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.dam.androidmh.R
 import com.dam.androidmh.ui.rutas.rutas
+import com.dam.androidmh.ui.shared.MonstruosViewModelFirebase
+import com.dam.androidmh.ui.shared.UsuarioViewModelFirebase
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -49,6 +55,8 @@ fun Login(navController: NavHostController?){
     var user by rememberSaveable { mutableStateOf("") }
     var password by rememberSaveable { mutableStateOf("") }
     var passwordVisible by rememberSaveable { mutableStateOf(false) }
+    val usuarioViewModel: UsuarioViewModelFirebase = viewModel()
+    val context = LocalContext.current
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -56,6 +64,7 @@ fun Login(navController: NavHostController?){
         ,
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.SpaceBetween,
+
 
 
     ){
@@ -66,7 +75,13 @@ fun Login(navController: NavHostController?){
             .border(2.dp, Color.White, shape)
             ) {
             Button(onClick = {
-                navController?.navigate(rutas.bestiario.ruta)
+                var logged = usuarioViewModel.login(user, password)
+                if(logged){
+                    Toast.makeText(context, "LogIn Correcto", Toast.LENGTH_LONG).show()
+                }
+                else{
+                    Toast.makeText(context,"Ocurrió un problema a la hora de iniciar sesión", Toast.LENGTH_LONG).show()
+                }
             }, colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
                 shape = RoundedCornerShape(0.dp),
             ) {

@@ -7,8 +7,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import com.dam.androidmh.ui.model.Usuario
 import com.google.android.gms.tasks.Task
+import com.google.firebase.Firebase
 import com.google.firebase.auth.AuthResult
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.auth
 import com.google.firebase.firestore.DocumentChange
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
@@ -26,8 +28,6 @@ class UsuarioViewModelFirebase : ViewModel() {
 
     // El listener
     private lateinit var listenerReg: ListenerRegistration
-
-    private var auth = FirebaseAuth.getInstance()
 
     // Lista de toda la grifa, que la actualizará Firebase.
     private var _listaUsuarios = MutableStateFlow(mutableStateListOf<Usuario>())
@@ -71,19 +71,5 @@ class UsuarioViewModelFirebase : ViewModel() {
     fun editarUsuario(usuarioAEditar: Usuario, nuevoUsuario: Usuario){
         conexion.collection("Usuario").document(usuarioAEditar.email).set(Usuario(nuevoUsuario.email,
             nuevoUsuario.fotoDePerfil, nuevoUsuario.monstruosCazados))
-    }
-    fun login(email: String, password: String) : Boolean{
-        var logged = false
-        auth.signInWithEmailAndPassword(email, password)
-            .addOnCompleteListener()
-            {
-                @Override
-                fun onComplete( task : @NonNull Task<AuthResult> ){
-                    if(task.isSuccessful){
-                        logged = true
-                    }
-                }
-            }
-        return logged
     }
 }

@@ -55,7 +55,7 @@ import com.google.firebase.auth.auth
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun Login(navController: NavHostController?){
+fun Register(navController: NavHostController?){
     var user by rememberSaveable { mutableStateOf("") }
     var password by rememberSaveable { mutableStateOf("") }
     var passwordVisible by rememberSaveable { mutableStateOf(false) }
@@ -70,24 +70,25 @@ fun Login(navController: NavHostController?){
         verticalArrangement = Arrangement.SpaceBetween,
 
 
-    ){
+
+        ){
         Column (modifier = Modifier.padding(18.dp,20.dp,0.dp,0.dp)){
             Text(text = "Aplicación monster hunter:", fontSize = 24.sp, color = Color.White, fontWeight = Bold, textAlign = TextAlign.Center,modifier = Modifier.fillMaxWidth())
-            Text(text = "Iniciar sesión", fontSize = 24.sp, color = Color.White, fontWeight = Bold, textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth())
+            Text(text = "Registrarse", fontSize = 24.sp, color = Color.White, fontWeight = Bold, textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth())
         }
         Row (modifier = Modifier
             .border(2.dp, Color.White, shape)
-            ) {
+        ) {
             Button(onClick = {
-                auth.signInWithEmailAndPassword(user, password)
+                auth.createUserWithEmailAndPassword(user, password)
                     .addOnCompleteListener{ task ->
                         if (task.isSuccessful) {
                             // Sign in success, update UI with the signed-in user's information
-                            Toast.makeText(context, "Inicio de sesión correcto", Toast.LENGTH_LONG).show()
-                            navController!!.navigate(rutas.bestiario.ruta)
+                            Toast.makeText(context, "Cuenta creada correctamente", Toast.LENGTH_LONG).show()
+                            navController!!.navigate(rutas.login.ruta)
                         }
                         else{
-                            Toast.makeText(context,"Ocurrió un problema a la hora de iniciar sesión: "+task.exception, Toast.LENGTH_LONG).show()
+                            Toast.makeText(context,"Ocurrió un problema a la hora de crear una cuenta: "+task.exception, Toast.LENGTH_LONG).show()
                         }
                     }
             }, colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
@@ -100,8 +101,8 @@ fun Login(navController: NavHostController?){
                         contentScale = ContentScale.Fit,
                         modifier = Modifier
                             .size(400.dp)
-                )
-            } }
+                    )
+                } }
         }
         Row{
             Column {
@@ -139,8 +140,8 @@ fun Login(navController: NavHostController?){
             }
         }
         Row {
-            Button(onClick = { navController!!.navigate(rutas.register.ruta) }) {
-                Text("¿No tienes usuario? ¡Regístrate!")
+            Button(onClick = { navController!!.navigate(rutas.login.ruta) }) {
+                Text("¿Ya tienes una cuenta? Inicia sesión aquí")
             }
         }
     }

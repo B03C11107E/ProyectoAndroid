@@ -9,23 +9,19 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.AlertDialogDefaults.shape
 import androidx.compose.material3.Button
-import androidx.compose.material3.Checkbox
-import androidx.compose.material3.CheckboxColors
-import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
@@ -58,8 +54,6 @@ import com.dam.androidmh.ui.shared.UsuarioViewModelFirebase
 @Composable
 fun Bestiario(navController : NavHostController) {
 
-    val listaMonstruosFiltrarPrueba = arrayOf("Pukei", "Anjanath", "Velkhana")
-
     var query by remember {
         mutableStateOf("")
     }
@@ -78,7 +72,7 @@ fun Bestiario(navController : NavHostController) {
         mutableStateOf(false)
     }
 
-    var textoPrueba by remember {
+    var usuarioActivoEmail by remember {
         mutableStateOf("Soy una prueba")
     }
 
@@ -86,8 +80,18 @@ fun Bestiario(navController : NavHostController) {
 
     monstruosViewModel.obtenerLista()
     //monstruosViewModel.aniadirMonstruo(Monstruo(2,"Anjanath",false,false,false,R.drawable.anjanath))
-
-    var listaMonstruosPrueba = monstruosViewModel.listaMonstruos.collectAsState().value
+    /* //Introduciendo datos dejado comentado por si acaso se necesita otra vez
+    monstruosViewModel.aniadirMonstruo(Monstruo(3,"Bazelgeuse","Monstruo que patrulla el continente entero en búsqueda de presas. Suele esparcir escamas explosivas.",R.drawable.anjanath))
+    monstruosViewModel.aniadirMonstruo(Monstruo(4,"Diablos","El mandamás del Yermo de Agujas. Extremadamente territorial y muy dado a embestir por sorpresa.",R.drawable.anjanath))
+    monstruosViewModel.aniadirMonstruo(Monstruo(5,"Gran Jagras","El voraz líder de los Jagras. Siempre atento y en busca del siguiente almuerzo.",R.drawable.anjanath))
+    monstruosViewModel.aniadirMonstruo(Monstruo(6,"Kulu-Ya-Ku","Un wyvern pájaro que usa sus extremidades frontales para atacar con todo tipo de recursos.",R.drawable.anjanath))
+    monstruosViewModel.aniadirMonstruo(Monstruo(7,"Odogaron","Terrorífico monstruo que recorre el Valle Putrefacto en busca de carroña para llevársela a su nido.",R.drawable.anjanath))
+    monstruosViewModel.aniadirMonstruo(Monstruo(8,"Nergigante","Un terrible dragón anciano consumido por su sed de destrucción. Su propia seguridad no parece preocuparle.",R.drawable.anjanath))
+    monstruosViewModel.aniadirMonstruo(Monstruo(9,"Rathalos","El mayor depredador del Bosque Primigenio, que patrulla los cielos en busca de intrusos.",R.drawable.anjanath))
+    monstruosViewModel.aniadirMonstruo(Monstruo(10,"Vaal Hazak","Poderosísimo dragón anciano que vive en los efluvios. Si el vapor llega a disiparse, el monstruo acumula más.",R.drawable.anjanath))
+    monstruosViewModel.aniadirMonstruo(Monstruo(11,"Xeno'Jiiva","Nueva especie descubierta en las profundidades del Lecho de los Ancianos. Ni su relación con los otros dragones ancianos ni su ecología están claras.",R.drawable.anjanath))
+    */
+    var listaMonstruos = monstruosViewModel.listaMonstruos.collectAsState().value
 
     val usuarioViewModel: UsuarioViewModelFirebase = viewModel()
 
@@ -102,17 +106,17 @@ fun Bestiario(navController : NavHostController) {
     LazyColumn {
         items(listaUsuariosPrueba) { item ->
             usuarioPrueba = item
-            textoPrueba = item.email
+            usuarioActivoEmail = item.email
         }
     }
 
     Column(modifier = Modifier
         .fillMaxSize()
-        .background(Color.White),
+        .background(Color.Black),
         horizontalAlignment = Alignment.CenterHorizontally)
     {
         Row {
-            Text(text = "Bestiario", fontSize = 24.sp, color = Color.Black, fontWeight = FontWeight.Bold)
+            Text(text = "Bestiario de $usuarioActivoEmail", fontSize = 18.sp, color = Color.White, fontWeight = FontWeight.Bold)
         }
 
         SearchBar(query = query,
@@ -143,23 +147,20 @@ fun Bestiario(navController : NavHostController) {
                 )
             } }
         ) {
-            val filteredMonstruo = listaMonstruosFiltrarPrueba.filter { it.contains(query, true) }
+            val filteredMonstruo = listaMonstruos.filter { it.nombre.contains(query, true) }
             filteredMonstruo.forEach {item -> Text(
-                text = item,
+                text = item.nombre,
                 modifier = Modifier
                     .padding(start = 10.dp, top = 5.dp)
                     .clickable {
-                        onSearch(item)
+                        onSearch(item.nombre)
                     }
             )}
         }
 
         if(usuarioPrueba.monstruosCazadosId.isNotEmpty()) {
-            ListWithLazyColumn(listaMonstruosPrueba, query, usuarioPrueba)
+            ListWithLazyColumn(listaMonstruos, query, usuarioPrueba)
         }
-
-        // Saber el usuario que se editara
-        Text(textoPrueba)
 
         Row(
             Modifier
@@ -168,20 +169,16 @@ fun Bestiario(navController : NavHostController) {
         ) {
             ExtendedFloatingActionButton(
                 onClick = { navController.navigate(rutas.registerMonster.ruta) },
-                icon = { Icon(Icons.Filled.Add, "Boton flotante de añadir equipo") },
-                text = { Text(text = "Añadir") },
+                icon = { Icon(Icons.Filled.Add, "Boton flotante de modificar bestiario") },
+                text = { Text(text = "Modificar") },
             )
             ExtendedFloatingActionButton(
                 onClick = {
-                    if (!borrar) {
-                        borrar = true
-                    } else {
-                        openDialog = true
-                    }
+                    navController.navigate(rutas.login.ruta)
                 },
-                icon = { Icon(Icons.Filled.Delete, "Boton flotante de borrar equipo") },
-                text = { Text(text = "Borrar") },
-                modifier = Modifier.padding(start = 145.dp)
+                icon = { Icon(Icons.Default.ArrowBack, "Boton flotante de salir") },
+                text = { Text(text = "Salir") },
+                modifier = Modifier.padding(start = 125.dp)
             )
         }
     }
@@ -224,7 +221,9 @@ fun Bestiario(navController : NavHostController) {
 
 @Composable
 fun ListWithLazyColumn(items: MutableList<Monstruo>, query: String, usuarioActivo: Usuario) {
-    LazyColumn {
+    LazyColumn(
+        modifier = Modifier.height(550.dp)
+    ) {
         usuarioActivo.monstruosCazadosId.forEach {
             items(items) { item ->
                 if (query == item.nombre || query == "" && it == item.id) {
@@ -240,7 +239,7 @@ fun ListItemRow(item: Monstruo) {
     Box(
         modifier = Modifier
             .padding(horizontal = 16.dp, vertical = 8.dp)
-            .border(2.dp, Color.Black)
+            .border(2.dp, Color.White)
             .fillMaxWidth()
     ) {
         Column(modifier = Modifier
@@ -255,11 +254,11 @@ fun ListItemRow(item: Monstruo) {
                         .size(120.dp)
                 )
                 Column {
-                    Text(text = item.nombre, fontSize = 18.sp, color = Color.Black,  modifier = Modifier
+                    Text(text = item.nombre, fontSize = 18.sp, color = Color.White,  modifier = Modifier
                         .padding(0.dp,10.dp))
-                    Text(text = "Cazado", modifier = Modifier
+                    Text(text = "Cazado", color = Color.White, modifier = Modifier
                         .padding(bottom = 10.dp))
-                    Text(item.descripcion)
+                    Text(text = item.descripcion, color = Color.White)
                 }
             }
         }

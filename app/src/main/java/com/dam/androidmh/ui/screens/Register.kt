@@ -22,6 +22,9 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
@@ -45,6 +48,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
 import com.dam.androidmh.R
 import com.dam.androidmh.ui.rutas.rutas
 import com.dam.androidmh.ui.shared.MonstruosViewModelFirebase
@@ -61,6 +66,7 @@ fun Register(navController: NavHostController?){
     var passwordVisible by rememberSaveable { mutableStateOf(false) }
     val context = LocalContext.current
     var auth : FirebaseAuth = Firebase.auth
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -96,7 +102,7 @@ fun Register(navController: NavHostController?){
             ) {
                 Column {
                     Image(
-                        painter = painterResource(id = R.drawable.logo_monsterhunter),
+                        painter = painterResource(id = R.drawable.logo_monsterhunterregister),
                         contentDescription = "Logo monster hunter world",
                         contentScale = ContentScale.Fit,
                         modifier = Modifier

@@ -42,6 +42,9 @@ import com.dam.androidmh.ui.model.Monstruo
 import androidx.compose.material3.SearchBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExtendedFloatingActionButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.remember
 import androidx.navigation.NavHostController
@@ -97,93 +100,91 @@ fun RegisterMonster(navController : NavHostController) {
     var usuario by remember {
         mutableStateOf(Usuario("Prueba2",1, emptyList()))
     }
-    LazyColumn {
-        items(listaUsuariosPrueba) { item ->
-            textoPrueba = item.email
-            usuarioPruebaEditar = item.copy()
-            usuario = item.copy()
-            usuario.monstruosCazadosId = listaAniadir
+    Scaffold(topBar = {BarraSuperior(titulo = "Modificar Bestiario")} , containerColor = Color( R.color.purple_500),
+        bottomBar = { BarraInferior(funcionNavegar1 = {
+            usuarioViewModel.editarUsuario(usuarioPruebaEditar,usuario)
+            textoPrueba = listaUsuariosPrueba[0].monstruosCazadosId.size.toString()
         }
-    }
+            , funcionNavegar2 = {
+                navController.navigate(rutas.bestiario.ruta)
 
-    monstruosViewModel.obtenerLista()
-
-    var listaMonstruos = monstruosViewModel.listaMonstruos.collectAsState().value
-
-    Column(modifier = Modifier
-        .fillMaxSize()
-        .background(Color.Black),
-        horizontalAlignment = Alignment.CenterHorizontally)
-    {
-        Row {
-            Text(text = "Modificar Bestiario", fontSize = 24.sp, color = Color.White, fontWeight = FontWeight.Bold)
-        }
-
-        SearchBar(query = query,
-            onQueryChange = {query = it},
-            onSearch = {
-                onSearch(query)
-            },
-            active = active,
-            onActiveChange = {active = it},
-            modifier = Modifier
-                .wrapContentHeight()
-                .fillMaxWidth(),
-            placeholder = {Text(text = "Buscar Monstruo")},
-            leadingIcon = { IconButton(onClick={ })  {
-                Icon(
-                    imageVector = Icons.Default.Menu,
-                    contentDescription = null
-                )
-            }
-            },
-            trailingIcon = { IconButton(
-                onClick = { onSearch(query) },
-                enabled = query.isNotEmpty()
-            ){
-                Icon(
-                    imageVector = Icons.Default.Search,
-                    contentDescription = null
-                )
-            }
-            }
-        ) {
-            val filteredMonstruos = listaMonstruos.filter { it.nombre.contains(query, true) }
-            filteredMonstruos.forEach {item -> Text(
-                text = item.nombre,
+            },icono1 = Icons.Filled.Add, icono2 = Icons.Default.ArrowBack)},
+        content = {
+            // paddingValues representa los dp que hay para evitar que el contenido se solape con las barras
+                paddingValues ->
+            Surface(
                 modifier = Modifier
-                    .padding(start = 10.dp, top = 5.dp)
-                    .clickable {
-                        onSearch(item.nombre)
+                    .fillMaxSize()
+                    .padding(paddingValues),
+                color = MaterialTheme.colorScheme.background
+            ) {
+                LazyColumn {
+                    items(listaUsuariosPrueba) { item ->
+                        textoPrueba = item.email
+                        usuarioPruebaEditar = item.copy()
+                        usuario = item.copy()
+                        usuario.monstruosCazadosId = listaAniadir
                     }
-            )}
-        }
+                }
 
-        ListWithLazyColumnEditarBestiario(listaMonstruos, query, usuarioPruebaEditar)
+                monstruosViewModel.obtenerLista()
 
-        Row(
-            Modifier
-                .fillMaxSize()
-                .padding(10.dp, 20.dp),
-        ) {
-            ExtendedFloatingActionButton(
-                onClick = {
-                    usuarioViewModel.editarUsuario(usuarioPruebaEditar,usuario)
-                          textoPrueba = listaUsuariosPrueba[0].monstruosCazadosId.size.toString()
-                          },
-                icon = { Icon(Icons.Filled.Add, "Boton de añadir monstruo") },
-                text = { Text(text = "Confirmar cambios") },
-            )
-            ExtendedFloatingActionButton(
-                onClick = {
-                    navController.navigate(rutas.bestiario.ruta)
-                },
-                icon = { Icon(Icons.Default.ArrowBack, "Boton de volver atras") },
-                text = { Text(text = "Volver") },
-                modifier = Modifier.padding(start = 65.dp)
-            )
-        }
-    }
+                var listaMonstruos = monstruosViewModel.listaMonstruos.collectAsState().value
+
+                Column(modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.Black),
+                    horizontalAlignment = Alignment.CenterHorizontally)
+                {
+
+                    SearchBar(query = query,
+                        onQueryChange = {query = it},
+                        onSearch = {
+                            onSearch(query)
+                        },
+                        active = active,
+                        onActiveChange = {active = it},
+                        modifier = Modifier
+                            .wrapContentHeight()
+                            .fillMaxWidth(),
+                        placeholder = {Text(text = "Buscar Monstruo")},
+                        leadingIcon = { IconButton(onClick={ })  {
+                            Icon(
+                                imageVector = Icons.Default.Menu,
+                                contentDescription = null
+                            )
+                        }
+                        },
+                        trailingIcon = { IconButton(
+                            onClick = { onSearch(query) },
+                            enabled = query.isNotEmpty()
+                        ){
+                            Icon(
+                                imageVector = Icons.Default.Search,
+                                contentDescription = null
+                            )
+                        }
+                        }
+                    ) {
+                        val filteredMonstruos = listaMonstruos.filter { it.nombre.contains(query, true) }
+                        filteredMonstruos.forEach {item -> Text(
+                            text = item.nombre,
+                            modifier = Modifier
+                                .padding(start = 10.dp, top = 5.dp)
+                                .clickable {
+                                    onSearch(item.nombre)
+                                }
+                        )}
+                    }
+
+                    ListWithLazyColumnEditarBestiario(listaMonstruos, query, usuarioPruebaEditar)
+
+
+                }
+            }
+
+        })
+
 }
 
 @Composable

@@ -42,9 +42,14 @@ import com.dam.androidmh.ui.model.Monstruo
 import androidx.compose.material3.SearchBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExtendedFloatingActionButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.remember
 import androidx.navigation.NavHostController
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
 import com.dam.androidmh.R
 import com.dam.androidmh.ui.model.Usuario
 import com.dam.androidmh.ui.rutas.rutas
@@ -103,120 +108,119 @@ fun Bestiario(navController : NavHostController) {
     var usuarioPrueba by remember {
         mutableStateOf(Usuario())
     }
-    LazyColumn {
-        items(listaUsuariosPrueba) { item ->
-            usuarioPrueba = item
-            usuarioActivoEmail = item.email
-        }
-    }
 
-    Column(modifier = Modifier
-        .fillMaxSize()
-        .background(Color.Black),
-        horizontalAlignment = Alignment.CenterHorizontally)
-    {
-        Row {
-            Text(text = "Bestiario de $usuarioActivoEmail", fontSize = 18.sp, color = Color.White, fontWeight = FontWeight.Bold)
+    Scaffold(topBar = {BarraSuperior(titulo = "Bestiario de $usuarioActivoEmail")} , containerColor = Color( R.color.purple_500),
+        bottomBar = { BarraInferior(funcionNavegar1 = {
+            navController.navigate(rutas.registerMonster.ruta)
         }
+            , funcionNavegar2 = {
+                navController.navigate(rutas.login.ruta)
 
-        SearchBar(query = query,
-            onQueryChange = {query = it},
-            onSearch = {
-                onSearch(query)
-            },
-            active = active,
-            onActiveChange = {active = it},
-            modifier = Modifier
-                .wrapContentHeight()
-                .fillMaxWidth(),
-            placeholder = {Text(text = "Buscar Monstruo")},
-            leadingIcon = { IconButton(onClick={ })  {
-                Icon(
-                    imageVector = Icons.Default.Menu,
-                    contentDescription = null
-                )
-            }
-            },
-            trailingIcon = { IconButton(
-                onClick = { onSearch(query) },
-                enabled = query.isNotEmpty()
-            ){
-                Icon(
-                    imageVector = Icons.Default.Search,
-                    contentDescription = null
-                )
-            } }
-        ) {
-            val filteredMonstruo = listaMonstruos.filter { it.nombre.contains(query, true) }
-            filteredMonstruo.forEach {item -> Text(
-                text = item.nombre,
+            },icono1 = Icons.Filled.Add, icono2 = Icons.Default.ArrowBack)},
+        content = {
+            // paddingValues representa los dp que hay para evitar que el contenido se solape con las barras
+                paddingValues ->
+            Surface(
                 modifier = Modifier
-                    .padding(start = 10.dp, top = 5.dp)
-                    .clickable {
-                        onSearch(item.nombre)
+                    .fillMaxSize()
+                    .padding(paddingValues)
+            ) {
+                LazyColumn {
+                    items(listaUsuariosPrueba) { item ->
+                        usuarioPrueba = item
+                        usuarioActivoEmail = item.email
                     }
-            )}
-        }
-
-        if(usuarioPrueba.monstruosCazadosId.isNotEmpty()) {
-            ListWithLazyColumn(listaMonstruos, query, usuarioPrueba)
-        }
-
-        Row(
-            Modifier
-                .fillMaxSize()
-                .padding(10.dp, 20.dp),
-        ) {
-            ExtendedFloatingActionButton(
-                onClick = { navController.navigate(rutas.registerMonster.ruta) },
-                icon = { Icon(Icons.Filled.Add, "Boton flotante de modificar bestiario") },
-                text = { Text(text = "Modificar") },
-            )
-            ExtendedFloatingActionButton(
-                onClick = {
-                    navController.navigate(rutas.login.ruta)
-                },
-                icon = { Icon(Icons.Default.ArrowBack, "Boton flotante de salir") },
-                text = { Text(text = "Salir") },
-                modifier = Modifier.padding(start = 125.dp)
-            )
-        }
-    }
-
-    if (openDialog) {
-        AlertDialog(
-            onDismissRequest = {
-                openDialog = false
-            },
-            title = {
-                Text(text = "Confirme el borrado")
-            },
-            text = {
-                Text("¿Esta seguro de que quiere eliminar los monstruos marcados?")
-            },
-            confirmButton = {
-                Button(
-                    onClick = {
-                        //listaRemover.forEach { item ->
-                        //    listaEquipos.remove(item)
-                        //}
-                        borrar = false
-                        openDialog = false
-                    }) {
-                    Text("Confirmar")
                 }
-            },
-            dismissButton = {
-                Button(
-                    onClick = {
-                        borrar = false
-                        openDialog = false
-                    }) {
-                    Text("Cancelar")
+
+                Column(modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.Black),
+                    horizontalAlignment = Alignment.CenterHorizontally)
+                {
+
+                    SearchBar(query = query,
+                        onQueryChange = {query = it},
+                        onSearch = {
+                            onSearch(query)
+                        },
+                        active = active,
+                        onActiveChange = {active = it},
+                        modifier = Modifier
+                            .wrapContentHeight()
+                            .fillMaxWidth(),
+                        placeholder = {Text(text = "Buscar Monstruo")},
+                        leadingIcon = { IconButton(onClick={ })  {
+                            Icon(
+                                imageVector = Icons.Default.Menu,
+                                contentDescription = null
+                            )
+                        }
+                        },
+                        trailingIcon = { IconButton(
+                            onClick = { onSearch(query) },
+                            enabled = query.isNotEmpty()
+                        ){
+                            Icon(
+                                imageVector = Icons.Default.Search,
+                                contentDescription = null
+                            )
+                        } }
+                    ) {
+                        val filteredMonstruo = listaMonstruos.filter { it.nombre.contains(query, true) }
+                        filteredMonstruo.forEach {item -> Text(
+                            text = item.nombre,
+                            modifier = Modifier
+                                .padding(start = 10.dp, top = 5.dp)
+                                .clickable {
+                                    onSearch(item.nombre)
+                                }
+                        )}
+                    }
+
+                    if(usuarioPrueba.monstruosCazadosId.isNotEmpty()) {
+                        ListWithLazyColumn(listaMonstruos, query, usuarioPrueba)
+                    }
+
+                }
+
+                if (openDialog) {
+                    AlertDialog(
+                        onDismissRequest = {
+                            openDialog = false
+                        },
+                        title = {
+                            Text(text = "Confirme el borrado")
+                        },
+                        text = {
+                            Text("¿Esta seguro de que quiere eliminar los monstruos marcados?")
+                        },
+                        confirmButton = {
+                            Button(
+                                onClick = {
+                                    //listaRemover.forEach { item ->
+                                    //    listaEquipos.remove(item)
+                                    //}
+                                    borrar = false
+                                    openDialog = false
+                                }) {
+                                Text("Confirmar")
+                            }
+                        },
+                        dismissButton = {
+                            Button(
+                                onClick = {
+                                    borrar = false
+                                    openDialog = false
+                                }) {
+                                Text("Cancelar")
+                            }
+                        }
+                    )
                 }
             }
-        )
-    }
+
+        })
+
 }
 
 @Composable

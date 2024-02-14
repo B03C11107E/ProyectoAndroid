@@ -30,4 +30,5 @@ fun GrafoNavegacion() {
             RegisterMonster(navController = navController)
         }
     }
+
 }

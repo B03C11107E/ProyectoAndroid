@@ -4,6 +4,8 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.rememberTransformableState
+import androidx.compose.foundation.gestures.transformable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -47,6 +49,8 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.remember
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -251,11 +255,30 @@ fun ListItemRow(item: Monstruo) {
         ){
             Row {
                 //Image(painter = painterResource(id = item.imagen),
+                var scale by remember {
+                    mutableStateOf(1f)
+                }
+                var offset by remember {
+                    mutableStateOf(Offset.Zero)
+                }
+                val state = rememberTransformableState {
+                        zoomChange, panChange, rotationChange ->
+                    scale = (scale * zoomChange).coerceIn(1f, 5f)
+
+                    //offset += panChange
+                }
                 Image(painter = painterResource(id = R.drawable.anjanath),
                     contentDescription = "",
                     modifier = Modifier
                         .padding(top = 30.dp, end = 30.dp)
                         .size(120.dp)
+                        .graphicsLayer {
+                            scaleX = scale
+                            scaleY = scale
+                            translationX = offset.x
+                            translationY = offset.y
+                        }
+                        .transformable(state)
                 )
                 Column {
                     Text(text = item.nombre, fontSize = 18.sp, color = Color.White,  modifier = Modifier

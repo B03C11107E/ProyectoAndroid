@@ -80,19 +80,28 @@ fun Login(navController: NavHostController?){
             ) {
             Button(onClick = {
 
-                navController!!.navigate(rutas.bestiario.ruta)
-                /*
-                auth.signInWithEmailAndPassword(user, password)
-                    .addOnCompleteListener{ task ->
-                        if (task.isSuccessful) {
-                            // Sign in success, update UI with the signed-in user's information
-                            Toast.makeText(context, "Inicio de sesión correcto", Toast.LENGTH_LONG).show()
-                            navController!!.navigate(rutas.bestiario.ruta)
-                        }
-                        else{
-                            Toast.makeText(context,"Ocurrió un problema a la hora de iniciar sesión: "+task.exception, Toast.LENGTH_LONG).show()
-                        }
-                    } */
+                if(!user.equals("")){
+                    if(!password.equals("")){
+                        auth.signInWithEmailAndPassword(user, password)
+                            .addOnCompleteListener{ task ->
+                                if (task.isSuccessful) {
+                                    // Sign in success, update UI with the signed-in user's information
+                                    Toast.makeText(context, "Inicio de sesión correcto", Toast.LENGTH_LONG).show()
+                                    navController!!.navigate(rutas.bestiario.ruta)
+                                }
+                                else{
+                                    Toast.makeText(context,"Erro al iniciar sesión: compruebe si el email y la contraseña son correctos", Toast.LENGTH_LONG).show()
+                                }
+                            }
+                    }
+                    else{
+                        Toast.makeText(context,"Debe introducir una contraseña para iniciar sesión", Toast.LENGTH_LONG).show()
+                    }
+                }
+                else{
+                    Toast.makeText(context,"Debe introducir un email para iniciar sesión", Toast.LENGTH_LONG).show()
+                }
+
             }, colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
                 shape = RoundedCornerShape(0.dp),
             ) {

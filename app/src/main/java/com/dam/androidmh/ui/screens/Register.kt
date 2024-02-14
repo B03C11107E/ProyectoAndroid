@@ -86,17 +86,28 @@ fun Register(navController: NavHostController?){
             .border(2.dp, Color.White, shape)
         ) {
             Button(onClick = {
-                auth.createUserWithEmailAndPassword(user, password)
-                    .addOnCompleteListener{ task ->
-                        if (task.isSuccessful) {
-                            // Sign in success, update UI with the signed-in user's information
-                            Toast.makeText(context, "Cuenta creada correctamente", Toast.LENGTH_LONG).show()
-                            navController!!.navigate(rutas.login.ruta)
-                        }
-                        else{
-                            Toast.makeText(context,"Ocurrió un problema a la hora de crear una cuenta: "+task.exception, Toast.LENGTH_LONG).show()
-                        }
+                if(!user.equals("")) {
+                    if (!password.equals("")) {
+                        auth.createUserWithEmailAndPassword(user, password)
+                            .addOnCompleteListener{ task ->
+                                if (task.isSuccessful) {
+                                    // Sign in success, update UI with the signed-in user's information
+                                    Toast.makeText(context, "Cuenta creada correctamente", Toast.LENGTH_LONG).show()
+                                    navController!!.navigate(rutas.login.ruta)
+                                }
+                                else{
+                                    Toast.makeText(context,"Ocurrió un problema a la hora de crear una cuenta: "+task.exception, Toast.LENGTH_LONG).show()
+                                }
+                            }
                     }
+                    else{
+                        Toast.makeText(context,"Debe introducir una contraseña para registrarse", Toast.LENGTH_LONG).show()
+                    }
+                }
+                else{
+                    Toast.makeText(context,"Debe introducir un email para registrarse", Toast.LENGTH_LONG).show()
+                }
+
             }, colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
                 shape = RoundedCornerShape(0.dp),
             ) {

@@ -54,11 +54,11 @@ class MonstruosViewModelFirebase : ViewModel() {
                 datos, excepcion ->
             if(excepcion == null) {
                 if(datos != null) {
-                    listaMonstruos.value.clear()
+                    _listaMonstruos.value.clear()
 
                     datos.forEach { documento ->
                         val p = documento.toObject(Monstruo::class.java)
-                        listaMonstruos.value.add(p)
+                        _listaMonstruos.value.add(p)
                     }
                 }
             }
@@ -73,7 +73,6 @@ class MonstruosViewModelFirebase : ViewModel() {
         conexion.collection("Monstruos").document(usuarioABorrar.nombre).delete()
     }
     fun editarMonstruo(monstruoAEditar: Monstruo, nuevoMonstruo: Monstruo){
-        conexion.collection("Monstruos").document(monstruoAEditar.nombre).set(Monstruo(nuevoMonstruo.id,nuevoMonstruo.nombre,nuevoMonstruo.rangoBajo,
-            nuevoMonstruo.rangoAlto, nuevoMonstruo.rangoMaestro))
+        conexion.collection("Monstruos").document(monstruoAEditar.nombre).set(Monstruo(nuevoMonstruo.id,nuevoMonstruo.nombre,nuevoMonstruo.descripcion))
     }
 }

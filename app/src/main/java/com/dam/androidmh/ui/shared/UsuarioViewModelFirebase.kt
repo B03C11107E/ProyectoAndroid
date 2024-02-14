@@ -5,12 +5,10 @@ import android.widget.Toast
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
+import com.dam.androidmh.ui.model.Monstruo
 import com.dam.androidmh.ui.model.Usuario
 import com.google.android.gms.tasks.Task
 import com.google.firebase.Firebase
-import com.google.firebase.auth.AuthResult
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.auth
 import com.google.firebase.firestore.DocumentChange
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
@@ -20,7 +18,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import org.checkerframework.checker.nullness.qual.NonNull
 
 class UsuarioViewModelFirebase : ViewModel() {
-
 
 
     // conexion mysql...
@@ -62,6 +59,22 @@ class UsuarioViewModelFirebase : ViewModel() {
         listenerReg.remove()
     }
 
+    fun obtenerLista() {
+        listenerReg = conexion.collection("Usuario").addSnapshotListener {
+                datos, excepcion ->
+            if(excepcion == null) {
+                if(datos != null) {
+                    _listaUsuarios.value.clear()
+
+                    datos.forEach { documento ->
+                        val p = documento.toObject(Usuario::class.java)
+                        _listaUsuarios.value.add(p)
+                    }
+                }
+            }
+        }
+    }
+
     fun aniadirUsuario(nuevoUsuario: Usuario) {
         conexion.collection("Usuario").add(nuevoUsuario)
     }
@@ -70,6 +83,6 @@ class UsuarioViewModelFirebase : ViewModel() {
     }
     fun editarUsuario(usuarioAEditar: Usuario, nuevoUsuario: Usuario){
         conexion.collection("Usuario").document(usuarioAEditar.email).set(Usuario(nuevoUsuario.email,
-            nuevoUsuario.fotoDePerfil, nuevoUsuario.monstruosCazados))
+            nuevoUsuario.fotoDePerfil, nuevoUsuario.monstruosCazadosId))
     }
 }

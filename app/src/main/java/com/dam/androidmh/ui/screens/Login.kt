@@ -79,6 +79,9 @@ fun Login(navController: NavHostController?){
             .border(2.dp, Color.White, shape)
             ) {
             Button(onClick = {
+
+                navController!!.navigate(rutas.bestiario.ruta)
+                /*
                 auth.signInWithEmailAndPassword(user, password)
                     .addOnCompleteListener{ task ->
                         if (task.isSuccessful) {
@@ -89,7 +92,7 @@ fun Login(navController: NavHostController?){
                         else{
                             Toast.makeText(context,"Ocurrió un problema a la hora de iniciar sesión: "+task.exception, Toast.LENGTH_LONG).show()
                         }
-                    }
+                    } */
             }, colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
                 shape = RoundedCornerShape(0.dp),
             ) {

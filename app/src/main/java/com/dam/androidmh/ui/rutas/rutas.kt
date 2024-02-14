@@ -5,4 +5,5 @@ sealed class rutas(val ruta: String) {
     object home: rutas("home")
     object bestiario: rutas("bestiario")
     object register: rutas("register")
+    object registerMonster: rutas("registerMonster")
 }

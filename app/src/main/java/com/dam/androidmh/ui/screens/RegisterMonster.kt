@@ -4,6 +4,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -11,7 +12,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -20,12 +20,7 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.AlertDialogDefaults.shape
-import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
-import androidx.compose.material3.CheckboxColors
-import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
@@ -54,9 +49,14 @@ import com.dam.androidmh.ui.model.Usuario
 import com.dam.androidmh.ui.rutas.rutas
 import com.dam.androidmh.ui.shared.UsuarioViewModelFirebase
 
+var listaAniadir: MutableList<Int> by mutableStateOf(mutableListOf())
+var primeraVez = true;
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun Bestiario(navController : NavHostController) {
+fun RegisterMonster(navController : NavHostController) {
+
+    primeraVez = true
 
     val listaMonstruosFiltrarPrueba = arrayOf("Pukei", "Anjanath", "Velkhana")
 
@@ -83,12 +83,6 @@ fun Bestiario(navController : NavHostController) {
     }
 
     val monstruosViewModel: MonstruosViewModelFirebase = viewModel()
-
-    monstruosViewModel.obtenerLista()
-    //monstruosViewModel.aniadirMonstruo(Monstruo(2,"Anjanath",false,false,false,R.drawable.anjanath))
-
-    var listaMonstruosPrueba = monstruosViewModel.listaMonstruos.collectAsState().value
-
     val usuarioViewModel: UsuarioViewModelFirebase = viewModel()
 
     usuarioViewModel.obtenerLista()
@@ -96,15 +90,25 @@ fun Bestiario(navController : NavHostController) {
     var listaUsuariosPrueba = usuarioViewModel.listaUsuarios.collectAsState().value
 
     // Usuario de prueba, lo hago con un lazyColumn porque de las otras formas que he probado me da error
-    var usuarioPrueba by remember {
-        mutableStateOf(Usuario())
+    var usuarioPruebaEditar by remember {
+        mutableStateOf(Usuario("Prueba1",1, emptyList()))
+    }
+    var usuario by remember {
+        mutableStateOf(Usuario("Prueba2",1, emptyList()))
     }
     LazyColumn {
         items(listaUsuariosPrueba) { item ->
-            usuarioPrueba = item
             textoPrueba = item.email
+            usuarioPruebaEditar = item.copy()
+            usuario = item.copy()
+            usuario.monstruosCazadosId = listaAniadir
         }
     }
+
+    monstruosViewModel.obtenerLista()
+    //monstruosViewModel.aniadirMonstruo(Monstruo(2,"Anjanath",false,false,false,R.drawable.anjanath))
+
+    var listaMonstruosPrueba = monstruosViewModel.listaMonstruos.collectAsState().value
 
     Column(modifier = Modifier
         .fillMaxSize()
@@ -141,10 +145,11 @@ fun Bestiario(navController : NavHostController) {
                     imageVector = Icons.Default.Search,
                     contentDescription = null
                 )
-            } }
+            }
+            }
         ) {
-            val filteredMonstruo = listaMonstruosFiltrarPrueba.filter { it.contains(query, true) }
-            filteredMonstruo.forEach {item -> Text(
+            val filteredMonstruos = listaMonstruosFiltrarPrueba.filter { it.contains(query, true) }
+            filteredMonstruos.forEach {item -> Text(
                 text = item,
                 modifier = Modifier
                     .padding(start = 10.dp, top = 5.dp)
@@ -154,9 +159,7 @@ fun Bestiario(navController : NavHostController) {
             )}
         }
 
-        if(usuarioPrueba.monstruosCazadosId.isNotEmpty()) {
-            ListWithLazyColumn(listaMonstruosPrueba, query, usuarioPrueba)
-        }
+        ListWithLazyColumn1(listaMonstruosPrueba, query, usuarioPruebaEditar)
 
         // Saber el usuario que se editara
         Text(textoPrueba)
@@ -167,76 +170,37 @@ fun Bestiario(navController : NavHostController) {
                 .padding(10.dp, 20.dp),
         ) {
             ExtendedFloatingActionButton(
-                onClick = { navController.navigate(rutas.registerMonster.ruta) },
-                icon = { Icon(Icons.Filled.Add, "Boton flotante de añadir equipo") },
+                onClick = {
+                    usuarioViewModel.editarUsuario(usuarioPruebaEditar,usuario)
+                          textoPrueba = listaUsuariosPrueba[0].monstruosCazadosId.size.toString()
+                          },
+                icon = { Icon(Icons.Filled.Add, "Boton de añadir monstruo") },
                 text = { Text(text = "Añadir") },
             )
             ExtendedFloatingActionButton(
                 onClick = {
-                    if (!borrar) {
-                        borrar = true
-                    } else {
-                        openDialog = true
-                    }
+                    navController.navigate(rutas.bestiario.ruta)
                 },
-                icon = { Icon(Icons.Filled.Delete, "Boton flotante de borrar equipo") },
-                text = { Text(text = "Borrar") },
+                icon = { Icon(Icons.Filled.Delete, "Boton de volver atras") },
+                text = { Text(text = "Volver") },
                 modifier = Modifier.padding(start = 145.dp)
             )
         }
     }
-
-    if (openDialog) {
-        AlertDialog(
-            onDismissRequest = {
-                openDialog = false
-            },
-            title = {
-                Text(text = "Confirme el borrado")
-            },
-            text = {
-                Text("¿Esta seguro de que quiere eliminar los monstruos marcados?")
-            },
-            confirmButton = {
-                Button(
-                    onClick = {
-                        //listaRemover.forEach { item ->
-                        //    listaEquipos.remove(item)
-                        //}
-                        borrar = false
-                        openDialog = false
-                    }) {
-                    Text("Confirmar")
-                }
-            },
-            dismissButton = {
-                Button(
-                    onClick = {
-                        borrar = false
-                        openDialog = false
-                    }) {
-                    Text("Cancelar")
-                }
-            }
-        )
-    }
 }
 
 @Composable
-fun ListWithLazyColumn(items: MutableList<Monstruo>, query: String, usuarioActivo: Usuario) {
+fun ListWithLazyColumn1(items: MutableList<Monstruo>, query: String, usuarioActivo: Usuario) {
     LazyColumn {
-        usuarioActivo.monstruosCazadosId.forEach {
-            items(items) { item ->
-                if (query == item.nombre || query == "" && it == item.id) {
-                    ListItemRow(item)
-                }
+        items(items) { item ->
+            if (query == item.nombre || query == "") {
+                ListItemRowEditarMonstruo(item, usuarioActivo)
             }
         }
     }
 }
-
 @Composable
-fun ListItemRow(item: Monstruo) {
+fun ListItemRowEditarMonstruo(item: Monstruo, usuarioActivo: Usuario) {
     Box(
         modifier = Modifier
             .padding(horizontal = 16.dp, vertical = 8.dp)
@@ -246,21 +210,44 @@ fun ListItemRow(item: Monstruo) {
         Column(modifier = Modifier
             .padding(horizontal = 16.dp, vertical = 8.dp)
         ){
-            Row {
+            Row( verticalAlignment = Alignment.CenterVertically
+            ) {
                 //Image(painter = painterResource(id = item.imagen),
                 Image(painter = painterResource(id = R.drawable.anjanath),
                     contentDescription = "",
                     modifier = Modifier
-                        .padding(top = 30.dp, end = 30.dp)
+                        .padding(end = 30.dp)
                         .size(120.dp)
                 )
-                Column {
-                    Text(text = item.nombre, fontSize = 18.sp, color = Color.Black,  modifier = Modifier
-                        .padding(0.dp,10.dp))
-                    Text(text = "Cazado", modifier = Modifier
-                        .padding(bottom = 10.dp))
-                    Text(item.descripcion)
+                Text(text = item.nombre, fontSize = 18.sp, color = Color.Black,  modifier = Modifier
+                    .padding(0.dp,10.dp))
+
+                var checked by remember { mutableStateOf(false) }
+
+                Checkbox(
+                    checked = checked,
+                    onCheckedChange = {
+                        checked = it
+                        if (checked) {
+                            listaAniadir.add(item.id)
+                        } else {
+                            listaAniadir.remove(item.id)
+                        }},
+                    )
+
+                var contador by remember { mutableStateOf(0) }
+                usuarioActivo.monstruosCazadosId.forEach {
+                    contador++
+                    if (it == item.id && primeraVez) {
+                        checked = true
+                    }
+                    Text(contador.toString())
+
+                    if (usuarioActivo.monstruosCazadosId.size == contador) {
+                        primeraVez = false
+                    }
                 }
+                Text(usuarioActivo.monstruosCazadosId.size.toString())
             }
         }
     }

@@ -90,7 +90,7 @@ fun Login(navController: NavHostController?){
                                     navController!!.navigate(rutas.bestiario.ruta)
                                 }
                                 else{
-                                    Toast.makeText(context,"Erro al iniciar sesión: compruebe si el email y la contraseña son correctos", Toast.LENGTH_LONG).show()
+                                    Toast.makeText(context,"Error: compruebe si el email y la contraseña son correctos", Toast.LENGTH_LONG).show()
                                 }
                             }
                     }

@@ -58,7 +58,7 @@ class UsuarioViewModelFirebase : ViewModel() {
 
     fun cambiarUsuarioActivo(usuarioBuscar: String) {
         _listaUsuarios.value.forEach {item ->
-            if (item.email.equals(usuarioBuscar)) {
+            if (item.email == usuarioBuscar) {
                 _usuarioActivo.value = item
             }
         }

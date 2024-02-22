@@ -1,5 +1,6 @@
 package com.dam.androidmh.ui.screens
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -51,6 +52,7 @@ import com.dam.androidmh.ui.model.Usuario
 import com.dam.androidmh.ui.rutas.rutas
 import com.dam.androidmh.ui.shared.UsuarioViewModelFirebase
 
+@SuppressLint("StateFlowValueCalledInComposition")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Bestiario(navController: NavHostController, usuarioRecibido: String) {
@@ -73,12 +75,10 @@ fun Bestiario(navController: NavHostController, usuarioRecibido: String) {
     var listaMonstruos = monstruosViewModel.listaMonstruos.collectAsState().value
 
     val usuarioViewModel: UsuarioViewModelFirebase = viewModel()
+
     usuarioViewModel.obtenerLista()
     usuarioViewModel.cambiarUsuarioActivo(usuarioRecibido)
-
-    var usuarioActivo by remember {
-        mutableStateOf(usuarioViewModel.usuarioActivo.value)
-    }
+    val usuarioActivo by usuarioViewModel.usuarioActivo.collectAsState()
 
     Scaffold(topBar = {BarraSuperior(titulo = "Bestiario de ${usuarioActivo.email}")} , containerColor = Color( R.color.purple_500),
         bottomBar = { BarraInferior(funcionNavegar1 = {

@@ -1,21 +1,14 @@
 package com.dam.androidmh.ui.shared
 
-import android.content.Context
-import android.widget.Toast
 import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
-import com.dam.androidmh.ui.model.Monstruo
 import com.dam.androidmh.ui.model.Usuario
-import com.google.android.gms.tasks.Task
-import com.google.firebase.Firebase
 import com.google.firebase.firestore.DocumentChange
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.firestore.toObject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import org.checkerframework.checker.nullness.qual.NonNull
 
 class UsuarioViewModelFirebase : ViewModel() {
 
@@ -26,9 +19,13 @@ class UsuarioViewModelFirebase : ViewModel() {
     // El listener
     private lateinit var listenerReg: ListenerRegistration
 
-    // Lista de toda la grifa, que la actualizará Firebase.
+    // Lista de todos los usuarios, que la actualizará Firebase.
     private var _listaUsuarios = MutableStateFlow(mutableStateListOf<Usuario>())
     var listaUsuarios = _listaUsuarios.asStateFlow()
+
+    // Usuario activo
+    private var _usuarioActivo = MutableStateFlow(Usuario())
+    var usuarioActivo = _usuarioActivo.asStateFlow()
 
     fun crearListener() {
         // ponemos la oreja
@@ -57,6 +54,14 @@ class UsuarioViewModelFirebase : ViewModel() {
 
     fun borrarListener() {
         listenerReg.remove()
+    }
+
+    fun cambiarUsuarioActivo(usuarioBuscar: String) {
+        _listaUsuarios.value.forEach {item ->
+            if (item.email.equals(usuarioBuscar)) {
+                _usuarioActivo.value = item
+            }
+        }
     }
 
     fun obtenerLista() {

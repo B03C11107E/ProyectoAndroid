@@ -47,7 +47,6 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.dam.androidmh.R
 import com.dam.androidmh.ui.rutas.rutas
-import com.dam.androidmh.ui.shared.MonstruosViewModelFirebase
 import com.dam.androidmh.ui.shared.UsuarioViewModelFirebase
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
@@ -61,6 +60,10 @@ fun Login(navController: NavHostController?){
     var passwordVisible by rememberSaveable { mutableStateOf(false) }
     val context = LocalContext.current
     var auth : FirebaseAuth = Firebase.auth
+    val usuarioViewModel: UsuarioViewModelFirebase = viewModel()
+
+    usuarioViewModel.obtenerLista()
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -79,7 +82,6 @@ fun Login(navController: NavHostController?){
             .border(2.dp, Color.White, shape)
             ) {
             Button(onClick = {
-
                 if(!user.equals("")){
                     if(!password.equals("")){
                         auth.signInWithEmailAndPassword(user, password)
@@ -87,7 +89,7 @@ fun Login(navController: NavHostController?){
                                 if (task.isSuccessful) {
                                     // Sign in success, update UI with the signed-in user's information
                                     Toast.makeText(context, "Inicio de sesión correcto", Toast.LENGTH_LONG).show()
-                                    navController!!.navigate(rutas.bestiario.ruta)
+                                    navController!!.navigate(rutas.bestiario.ruta+"/$user")
                                 }
                                 else{
                                     Toast.makeText(context,"Error: compruebe si el email y la contraseña son correctos", Toast.LENGTH_LONG).show()

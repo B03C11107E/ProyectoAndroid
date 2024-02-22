@@ -77,4 +77,5 @@ dependencies {
     implementation("com.google.firebase:firebase-firestore-ktx:24.10.0")
     implementation("androidx.compose.material3:material3:1.2.0-alpha02")
     implementation("com.google.firebase:firebase-auth:22.3.1")
+    implementation("io.coil-kt:coil-compose:2.5.0")
 }

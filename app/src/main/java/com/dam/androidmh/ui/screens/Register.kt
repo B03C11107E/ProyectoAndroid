@@ -22,9 +22,6 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
@@ -48,11 +45,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
 import com.dam.androidmh.R
+import com.dam.androidmh.ui.model.Usuario
 import com.dam.androidmh.ui.rutas.rutas
-import com.dam.androidmh.ui.shared.MonstruosViewModelFirebase
 import com.dam.androidmh.ui.shared.UsuarioViewModelFirebase
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
@@ -66,6 +61,7 @@ fun Register(navController: NavHostController?){
     var passwordVisible by rememberSaveable { mutableStateOf(false) }
     val context = LocalContext.current
     var auth : FirebaseAuth = Firebase.auth
+    val usuarioViewModel: UsuarioViewModelFirebase = viewModel()
 
     Column(
         modifier = Modifier
@@ -92,6 +88,7 @@ fun Register(navController: NavHostController?){
                             .addOnCompleteListener{ task ->
                                 if (task.isSuccessful) {
                                     // Sign in success, update UI with the signed-in user's information
+                                    usuarioViewModel.aniadirUsuario(Usuario(user, 0, emptyList()))
                                     Toast.makeText(context, "Cuenta creada correctamente", Toast.LENGTH_LONG).show()
                                     navController!!.navigate(rutas.login.ruta)
                                 }

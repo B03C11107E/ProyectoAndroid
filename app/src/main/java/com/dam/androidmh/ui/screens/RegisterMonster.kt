@@ -1,16 +1,13 @@
 package com.dam.androidmh.ui.screens
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.rememberTransformableState
 import androidx.compose.foundation.gestures.transformable
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -38,14 +35,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.dam.androidmh.ui.model.Monstruo
 import androidx.compose.material3.SearchBar
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
@@ -54,21 +48,17 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.navigation.NavHostController
+import coil.compose.AsyncImage
 import com.dam.androidmh.R
 import com.dam.androidmh.ui.model.Usuario
 import com.dam.androidmh.ui.rutas.rutas
 import com.dam.androidmh.ui.shared.UsuarioViewModelFirebase
 
 var listaAniadir: MutableList<Int> by mutableStateOf(mutableListOf())
-var primeraVez = true;
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun RegisterMonster(navController : NavHostController) {
-
-    primeraVez = true
-
-    //val listaMonstruosFiltrarPrueba = arrayOf("Pukei", "Anjanath", "Velkhana")
+fun RegisterMonster(navController : NavHostController, usuarioRecibido : String) {
 
     var query by remember {
         mutableStateOf("")
@@ -81,35 +71,31 @@ fun RegisterMonster(navController : NavHostController) {
         active = false
     }
 
-    var borrar by remember {
-        mutableStateOf(false)
-    }
-    var openDialog by remember {
-        mutableStateOf(false)
-    }
-
-    var textoPrueba by remember {
-        mutableStateOf("Soy una prueba")
-    }
-
     val monstruosViewModel: MonstruosViewModelFirebase = viewModel()
+
     val usuarioViewModel: UsuarioViewModelFirebase = viewModel()
-
     usuarioViewModel.obtenerLista()
+    usuarioViewModel.cambiarUsuarioActivo(usuarioRecibido)
 
-    var listaUsuariosPrueba = usuarioViewModel.listaUsuarios.collectAsState().value
+    var usuarioActivo by remember {
+        mutableStateOf(usuarioViewModel.usuarioActivo.value)
+    }
+    var usuarioEditar by remember {
+        mutableStateOf(usuarioActivo.copy())
+    }
+    usuarioEditar.monstruosCazadosId = listaAniadir
 
+/*
     // Usuario de prueba, lo hago con un lazyColumn porque de las otras formas que he probado me da error
     var usuarioPruebaEditar by remember {
         mutableStateOf(Usuario("Prueba1",1, emptyList()))
     }
     var usuario by remember {
-        mutableStateOf(Usuario("Prueba2",1, emptyList()))
-    }
+        mutableStateOf(usuarioViewModel.usuarioActivo.value)
+    } */
     Scaffold(topBar = {BarraSuperior(titulo = "Modificar Bestiario")} , containerColor = Color( R.color.purple_500),
         bottomBar = { BarraInferior(funcionNavegar1 = {
-            usuarioViewModel.editarUsuario(usuarioPruebaEditar,usuario)
-            textoPrueba = listaUsuariosPrueba[0].monstruosCazadosId.size.toString()
+            usuarioViewModel.editarUsuario(usuarioActivo,usuarioEditar)
         }
             , funcionNavegar2 = {
                 navController.navigate(rutas.bestiario.ruta)
@@ -124,17 +110,8 @@ fun RegisterMonster(navController : NavHostController) {
                     .padding(paddingValues),
                 color = MaterialTheme.colorScheme.background
             ) {
-                LazyColumn {
-                    items(listaUsuariosPrueba) { item ->
-                        textoPrueba = item.email
-                        usuarioPruebaEditar = item.copy()
-                        usuario = item.copy()
-                        usuario.monstruosCazadosId = listaAniadir
-                    }
-                }
 
                 monstruosViewModel.obtenerLista()
-
                 var listaMonstruos = monstruosViewModel.listaMonstruos.collectAsState().value
 
                 Column(modifier = Modifier
@@ -183,7 +160,7 @@ fun RegisterMonster(navController : NavHostController) {
                         )}
                     }
 
-                    ListWithLazyColumnEditarBestiario(listaMonstruos, query, usuarioPruebaEditar)
+                    ListWithLazyColumnEditarBestiario(listaMonstruos, query, usuarioActivo)
 
                 }
             }
@@ -199,13 +176,19 @@ fun ListWithLazyColumnEditarBestiario(items: MutableList<Monstruo>, query: Strin
     ) {
         items(items) { item ->
             if (query == item.nombre || query == "") {
-                ListItemRowEditarBestiario(item, usuarioActivo)
+                var check = false
+                usuarioActivo.monstruosCazadosId.forEach {
+                    if (it == item.id) {
+                        check = true
+                    }
+                }
+                ListItemRowEditarBestiario(item, usuarioActivo, check)
             }
         }
     }
 }
 @Composable
-fun ListItemRowEditarBestiario(item: Monstruo, usuarioActivo: Usuario) {
+fun ListItemRowEditarBestiario(item: Monstruo, usuarioActivo: Usuario, check: Boolean) {
     Box(
         modifier = Modifier
             .padding(horizontal = 16.dp, vertical = 8.dp)
@@ -217,7 +200,6 @@ fun ListItemRowEditarBestiario(item: Monstruo, usuarioActivo: Usuario) {
         ){
             Row( verticalAlignment = Alignment.CenterVertically
             ) {
-                //Image(painter = painterResource(id = item.imagen),
                 var scale by remember {
                     mutableStateOf(1f)
                 }
@@ -227,13 +209,12 @@ fun ListItemRowEditarBestiario(item: Monstruo, usuarioActivo: Usuario) {
                 val state = rememberTransformableState {
                         zoomChange, panChange, rotationChange ->
                     scale = (scale * zoomChange).coerceIn(1f, 5f)
-
-                    //offset += panChange
                 }
-                Image(painter = painterResource(id = R.drawable.anjanath),
-                    contentDescription = "",
+                AsyncImage(
+                    model = item.imagen,
+                    contentDescription = item.descripcion,
                     modifier = Modifier
-                        .padding(end = 30.dp)
+                        .padding(top = 30.dp, end = 30.dp)
                         .size(120.dp)
                         .graphicsLayer {
                             scaleX = scale
@@ -246,22 +227,13 @@ fun ListItemRowEditarBestiario(item: Monstruo, usuarioActivo: Usuario) {
                 Text(text = item.nombre, fontSize = 18.sp, color = Color.White,  modifier = Modifier
                     .padding(0.dp,10.dp))
 
-
-                var checked by remember { mutableStateOf(false) }
-
-                // Esto va a acabar con mi vida, cada vez funciona diferente.
-                /*
-                               var contador = 1
-                               usuarioActivo.monstruosCazadosId.forEach {
-
-                                   if (it == item.id && primeraVez) {
-                                       checked = true
-                                       contador++
-                                       if (usuarioActivo.monstruosCazadosId.size == contador) {
-                                           primeraVez = false
-                                       }
-                                   }
-                               } */
+                var checked by remember {
+                    if(check) {
+                        mutableStateOf(true)
+                    }  else {
+                        mutableStateOf(false)
+                    }
+                }
 
                 Checkbox(
                     colors = CheckboxDefaults.colors(checkmarkColor = Color.Black, uncheckedColor = Color.White, checkedColor = Color.White),

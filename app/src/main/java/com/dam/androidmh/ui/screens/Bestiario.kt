@@ -1,6 +1,5 @@
 package com.dam.androidmh.ui.screens
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -22,8 +21,6 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
@@ -36,15 +33,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.dam.androidmh.ui.model.Monstruo
 import androidx.compose.material3.SearchBar
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExtendedFloatingActionButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.collectAsState
@@ -52,8 +45,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
+import coil.compose.AsyncImage
 import com.dam.androidmh.R
 import com.dam.androidmh.ui.model.Usuario
 import com.dam.androidmh.ui.rutas.rutas
@@ -61,7 +53,7 @@ import com.dam.androidmh.ui.shared.UsuarioViewModelFirebase
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun Bestiario(navController : NavHostController) {
+fun Bestiario(navController: NavHostController, usuarioRecibido: String) {
 
     var query by remember {
         mutableStateOf("")
@@ -74,48 +66,23 @@ fun Bestiario(navController : NavHostController) {
         active = false
     }
 
-    var borrar by remember {
-        mutableStateOf(false)
-    }
-    var openDialog by remember {
-        mutableStateOf(false)
-    }
-
-    var usuarioActivoEmail by remember {
-        mutableStateOf("Soy una prueba")
-    }
-
     val monstruosViewModel: MonstruosViewModelFirebase = viewModel()
 
     monstruosViewModel.obtenerLista()
-    //monstruosViewModel.aniadirMonstruo(Monstruo(2,"Anjanath",false,false,false,R.drawable.anjanath))
-    /* //Introduciendo datos dejado comentado por si acaso se necesita otra vez
-    monstruosViewModel.aniadirMonstruo(Monstruo(3,"Bazelgeuse","Monstruo que patrulla el continente entero en búsqueda de presas. Suele esparcir escamas explosivas.",R.drawable.anjanath))
-    monstruosViewModel.aniadirMonstruo(Monstruo(4,"Diablos","El mandamás del Yermo de Agujas. Extremadamente territorial y muy dado a embestir por sorpresa.",R.drawable.anjanath))
-    monstruosViewModel.aniadirMonstruo(Monstruo(5,"Gran Jagras","El voraz líder de los Jagras. Siempre atento y en busca del siguiente almuerzo.",R.drawable.anjanath))
-    monstruosViewModel.aniadirMonstruo(Monstruo(6,"Kulu-Ya-Ku","Un wyvern pájaro que usa sus extremidades frontales para atacar con todo tipo de recursos.",R.drawable.anjanath))
-    monstruosViewModel.aniadirMonstruo(Monstruo(7,"Odogaron","Terrorífico monstruo que recorre el Valle Putrefacto en busca de carroña para llevársela a su nido.",R.drawable.anjanath))
-    monstruosViewModel.aniadirMonstruo(Monstruo(8,"Nergigante","Un terrible dragón anciano consumido por su sed de destrucción. Su propia seguridad no parece preocuparle.",R.drawable.anjanath))
-    monstruosViewModel.aniadirMonstruo(Monstruo(9,"Rathalos","El mayor depredador del Bosque Primigenio, que patrulla los cielos en busca de intrusos.",R.drawable.anjanath))
-    monstruosViewModel.aniadirMonstruo(Monstruo(10,"Vaal Hazak","Poderosísimo dragón anciano que vive en los efluvios. Si el vapor llega a disiparse, el monstruo acumula más.",R.drawable.anjanath))
-    monstruosViewModel.aniadirMonstruo(Monstruo(11,"Xeno'Jiiva","Nueva especie descubierta en las profundidades del Lecho de los Ancianos. Ni su relación con los otros dragones ancianos ni su ecología están claras.",R.drawable.anjanath))
-    */
+
     var listaMonstruos = monstruosViewModel.listaMonstruos.collectAsState().value
 
     val usuarioViewModel: UsuarioViewModelFirebase = viewModel()
-
     usuarioViewModel.obtenerLista()
+    usuarioViewModel.cambiarUsuarioActivo(usuarioRecibido)
 
-    var listaUsuariosPrueba = usuarioViewModel.listaUsuarios.collectAsState().value
-
-    // Usuario de prueba, lo hago con un lazyColumn porque de las otras formas que he probado me da error
-    var usuarioPrueba by remember {
-        mutableStateOf(Usuario())
+    var usuarioActivo by remember {
+        mutableStateOf(usuarioViewModel.usuarioActivo.value)
     }
 
-    Scaffold(topBar = {BarraSuperior(titulo = "Bestiario de $usuarioActivoEmail")} , containerColor = Color( R.color.purple_500),
+    Scaffold(topBar = {BarraSuperior(titulo = "Bestiario de ${usuarioActivo.email}")} , containerColor = Color( R.color.purple_500),
         bottomBar = { BarraInferior(funcionNavegar1 = {
-            navController.navigate(rutas.registerMonster.ruta)
+            navController.navigate(rutas.registerMonster.ruta+"/${usuarioActivo.email}")
         }
             , funcionNavegar2 = {
                 navController.navigate(rutas.login.ruta)
@@ -129,12 +96,6 @@ fun Bestiario(navController : NavHostController) {
                     .fillMaxSize()
                     .padding(paddingValues)
             ) {
-                LazyColumn {
-                    items(listaUsuariosPrueba) { item ->
-                        usuarioPrueba = item
-                        usuarioActivoEmail = item.email
-                    }
-                }
 
                 Column(modifier = Modifier
                     .fillMaxSize()
@@ -181,50 +142,12 @@ fun Bestiario(navController : NavHostController) {
                         )}
                     }
 
-                    if(usuarioPrueba.monstruosCazadosId.isNotEmpty()) {
-                        ListWithLazyColumn(listaMonstruos, query, usuarioPrueba)
+                    if(usuarioActivo.monstruosCazadosId.isNotEmpty()) {
+                        ListWithLazyColumn(listaMonstruos, query, usuarioActivo)
                     }
-
-                }
-
-                if (openDialog) {
-                    AlertDialog(
-                        onDismissRequest = {
-                            openDialog = false
-                        },
-                        title = {
-                            Text(text = "Confirme el borrado")
-                        },
-                        text = {
-                            Text("¿Esta seguro de que quiere eliminar los monstruos marcados?")
-                        },
-                        confirmButton = {
-                            Button(
-                                onClick = {
-                                    //listaRemover.forEach { item ->
-                                    //    listaEquipos.remove(item)
-                                    //}
-                                    borrar = false
-                                    openDialog = false
-                                }) {
-                                Text("Confirmar")
-                            }
-                        },
-                        dismissButton = {
-                            Button(
-                                onClick = {
-                                    borrar = false
-                                    openDialog = false
-                                }) {
-                                Text("Cancelar")
-                            }
-                        }
-                    )
                 }
             }
-
         })
-
 }
 
 @Composable
@@ -234,8 +157,10 @@ fun ListWithLazyColumn(items: MutableList<Monstruo>, query: String, usuarioActiv
     ) {
         usuarioActivo.monstruosCazadosId.forEach {
             items(items) { item ->
-                if (query == item.nombre || query == "" && it == item.id) {
-                    ListItemRow(item)
+                if (query == item.nombre || query == "") {
+                    if (it == item.id) {
+                        ListItemRow(item)
+                    }
                 }
             }
         }
@@ -254,7 +179,6 @@ fun ListItemRow(item: Monstruo) {
             .padding(horizontal = 16.dp, vertical = 8.dp)
         ){
             Row {
-                //Image(painter = painterResource(id = item.imagen),
                 var scale by remember {
                     mutableStateOf(1f)
                 }
@@ -264,11 +188,10 @@ fun ListItemRow(item: Monstruo) {
                 val state = rememberTransformableState {
                         zoomChange, panChange, rotationChange ->
                     scale = (scale * zoomChange).coerceIn(1f, 5f)
-
-                    //offset += panChange
                 }
-                Image(painter = painterResource(id = R.drawable.anjanath),
-                    contentDescription = "",
+                AsyncImage(
+                    model = item.imagen,
+                    contentDescription = item.descripcion,
                     modifier = Modifier
                         .padding(top = 30.dp, end = 30.dp)
                         .size(120.dp)

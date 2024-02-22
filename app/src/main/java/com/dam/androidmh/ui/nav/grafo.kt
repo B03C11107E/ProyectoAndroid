@@ -20,15 +20,16 @@ fun GrafoNavegacion() {
             Login(navController = navController)
         }
 
-        composable(rutas.bestiario.ruta){
-            Bestiario(navController = navController)
+        composable(rutas.bestiario.ruta+"/{userId}"){
+            val usuarioRecibido = it.arguments?.getString("userId") ?: ""
+            Bestiario(navController = navController, usuarioRecibido)
         }
         composable(rutas.register.ruta){
             Register(navController = navController)
         }
         composable(rutas.registerMonster.ruta){
-            RegisterMonster(navController = navController)
+            val usuarioRecibido = it.arguments?.getString("userId") ?: ""
+            RegisterMonster(navController = navController, usuarioRecibido)
         }
     }
-
 }

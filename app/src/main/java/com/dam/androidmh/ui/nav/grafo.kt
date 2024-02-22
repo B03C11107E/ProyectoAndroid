@@ -27,7 +27,7 @@ fun GrafoNavegacion() {
         composable(rutas.register.ruta){
             Register(navController = navController)
         }
-        composable(rutas.registerMonster.ruta){
+        composable(rutas.registerMonster.ruta+"/{userId}"){
             val usuarioRecibido = it.arguments?.getString("userId") ?: ""
             RegisterMonster(navController = navController, usuarioRecibido)
         }

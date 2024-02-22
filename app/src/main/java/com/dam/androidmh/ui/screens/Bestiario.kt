@@ -72,7 +72,7 @@ fun Bestiario(navController: NavHostController, usuarioRecibido: String) {
 
     monstruosViewModel.obtenerLista()
 
-    var listaMonstruos = monstruosViewModel.listaMonstruos.collectAsState().value
+    val listaMonstruos by monstruosViewModel.listaMonstruos.collectAsState()
 
     val usuarioViewModel: UsuarioViewModelFirebase = viewModel()
 

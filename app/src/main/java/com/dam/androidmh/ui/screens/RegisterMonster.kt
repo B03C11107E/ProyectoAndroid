@@ -77,28 +77,18 @@ fun RegisterMonster(navController : NavHostController, usuarioRecibido : String)
     usuarioViewModel.obtenerLista()
     usuarioViewModel.cambiarUsuarioActivo(usuarioRecibido)
 
-    var usuarioActivo by remember {
-        mutableStateOf(usuarioViewModel.usuarioActivo.value)
-    }
-    var usuarioEditar by remember {
-        mutableStateOf(usuarioActivo.copy())
-    }
+    val usuarioActivo by usuarioViewModel.usuarioActivo.collectAsState()
+
+    val usuarioEditar = usuarioActivo.copy()
+
     usuarioEditar.monstruosCazadosId = listaAniadir
 
-/*
-    // Usuario de prueba, lo hago con un lazyColumn porque de las otras formas que he probado me da error
-    var usuarioPruebaEditar by remember {
-        mutableStateOf(Usuario("Prueba1",1, emptyList()))
-    }
-    var usuario by remember {
-        mutableStateOf(usuarioViewModel.usuarioActivo.value)
-    } */
     Scaffold(topBar = {BarraSuperior(titulo = "Modificar Bestiario")} , containerColor = Color( R.color.purple_500),
         bottomBar = { BarraInferior(funcionNavegar1 = {
             usuarioViewModel.editarUsuario(usuarioActivo,usuarioEditar)
         }
             , funcionNavegar2 = {
-                navController.navigate(rutas.bestiario.ruta)
+                navController.navigate(rutas.bestiario.ruta+"/${usuarioActivo.email}")
 
             },icono1 = Icons.Filled.Add, icono2 = Icons.Default.ArrowBack)},
         content = {
